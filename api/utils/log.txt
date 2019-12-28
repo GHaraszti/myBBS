@@ -1,0 +1,9 @@
+stack:"TypeError: Cannot read property '0' of undefined
+at new Multi (/Users/Sibatel/Documents/BookScripts/myBBS/api/node_modules/redis/lib/multi.js:13:30)
+at RedisClient.multi (/Users/Sibatel/Documents/BookScripts/myBBS/api/node_modules/redis/lib/individualCommands.js:25:17)
+at Promise (internal/util.js:275:30)\nat new Promise (<anonymous>)
+at RedisClient.multi (internal/util.js:274:12)
+at Object.set (/Users/Sibatel/Documents/BookScripts/myBBS/api/utils/redis-messages.js:30:9)
+at Object.<anonymous> (/Users/Sibatel/Documents/BookScripts/myBBS/api/out/server.js:5:7)
+at Module._compile (internal/modules/cjs/loader.js:698:14)@at Object.Module._extensions..js (internal/modules/cjs/loader.js:712:10)
+at Module.load (internal/modules/cjs/loader.js:600:32)"
