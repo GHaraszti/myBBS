@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+<<<<<<< HEAD
     "tsc": "tsc",
     "start": "node out/server.js"
+=======
+    "tsc": "tsc"
+>>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
   },
   "author": "",
   "license": "ISC",

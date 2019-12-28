@@ -1,7 +1,10 @@
 import { Socket } from "net";
 import { ServerResponse, IncomingMessage, Server } from "http";
 import { read } from "fs";
+<<<<<<< HEAD
 import { Stream, Duplex } from "stream";
+=======
+>>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
 
 const http = require('http');
 const redis = require('http');
@@ -165,6 +168,7 @@ const getTopics = (req:IncomingMessage, res:ServerResponse, params:Query)=>{
 const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
     console.log();
     let socket = req.socket;
+<<<<<<< HEAD
     let method = req.method;
     let buffer = "";
 
@@ -238,6 +242,17 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
     // res.writeHead(200, {'content-type': 'text/plain'});
     // res.end("Bye~\n");
     // return;
+=======
+
+    // let body = [];
+    req.on('end', ()=>{
+        let message = socket.read();
+        console.log(message);
+    });
+    res.writeHead(200, {'content-type': 'text/plain'});
+    res.end("Bye~\n");
+    return;
+>>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
 })
 // .on('connection', (cltSocket:any)=>{
 //     console.log("Client connected");
@@ -248,6 +263,7 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
 //     cltSocket.on('data', (chunk:string = "")=>{
 //         buffer+=chunk;
 //     })
+<<<<<<< HEAD
 //     .on('close', (req:IncomingMessage, socket:Stream, head:Buffer)=>{
 //         let action:(Action | null) = PHCommand;
 
@@ -260,6 +276,20 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
 //         try{
 //             let dec = buffer.toString() || "";
 //             let pattern = /(\{\s{0,}"action":[\s\S]+})/;
+=======
+//     .on('close', ()=>{
+//         let action:(Action | null) = PHCommand;
+
+//         let ss = server;
+//         let rsym = Symbol.for('IncomingMessage');
+//         // let req = ss[rsym];
+//         let req = ss[Object.getOwnPropertySymbols(ss)[0]]
+//         let res = ss[Object.getOwnPropertySymbols(ss)[1]]
+//         // let res = ss[Symbol('ServerResponse')]; 
+//         try{
+//             let dec = buffer.toString() || "";
+//             let pattern = /(\{"action":.+\}\})/;
+>>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
 //             // let params = dec.split("\n")[5];
 //             let M = dec.match(pattern) || [];
 //             let jsonStr = M.length > 1 ? M[1] : "";
@@ -310,6 +340,20 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
 //     })
 
 // })
+<<<<<<< HEAD
+=======
+// //This is for multiple request per connection
+// .on('request', (req:IncomingMessage, res:ServerResponse)=>{
+//     //Since IncomeMessage doesn't have a body property, we use a global one to append data to it.
+//     console.log("On: rquest\n");
+//     let body = [];
+
+//     req.on('data', (chunk:any)=>{
+//         console.log();
+//     })
+ 
+// })
+>>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
 .listen(port, hostname, () => {
     console.log(`Listening to port ${port} on ${hostname}`);
 });
