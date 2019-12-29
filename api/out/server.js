@@ -1,10 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-<<<<<<< HEAD
-var net_1 = require("net");
-var http_1 = require("http");
-=======
->>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
 var http = require('http');
 var redis = require('http');
 var _a = require('../utils/redis-messages'), MsgDB = _a.MsgDB, TopicsDB = _a.TopicsDB;
@@ -138,84 +133,14 @@ var getTopics = function (req, res, params) {
 var server = http.createServer(function (req, res) {
     console.log();
     var socket = req.socket;
-<<<<<<< HEAD
-    var method = req.method;
-    var buffer = "";
-    req.on('data', function (chunk) {
-        var rr = req;
-        buffer += chunk;
-        console.log();
-    });
-    // let body = [];
-    req.on('end', function () {
-        var message = socket.read();
-        var action = PHCommand;
-        var payload;
-        var url = req.url;
-        console.log(message);
-        try {
-            var dec = buffer.toString() || "";
-            var pattern = /(\{\s{0,}"action":[\s\S]+})/;
-            // let params = dec.split("\n")[5];
-            var M = dec.match(pattern) || [];
-            var jsonStr = M.length > 1 ? M[1] : "";
-            payload = JSON.parse(jsonStr);
-            action = payload.action;
-        }
-        catch (err) {
-            console.log(err);
-            throw err;
-        }
-        if (action) {
-            //API router
-            var url_1 = req.url;
-            console.log("Request received: " + url_1);
-            var method_1 = action.type || "add";
-            var reqDummy = new http_1.IncomingMessage(new net_1.Socket());
-            console.log();
-            // let {topic, email, text} = {topic:"Movie", email:"zxc@asd.com", text:"I like Indinana Jones."};  
-            switch (url_1) {
-                case "/messages":
-                    console.log("cosa");
-                    if (method_1 === "get") {
-                        if (action.query)
-                            getMessages(req, res, action.query);
-                    }
-                    else if (method_1 === "add") {
-                        if (payload.message)
-                            postMessage(req, res, payload.message);
-                    }
-                    break;
-                case "/topics":
-                    if (method_1 === "get") {
-                        if (action.query)
-                            getTopics(req, res, action.query);
-                    }
-                    else if (method_1 === "add") {
-                        if (action.fields)
-                            postTopic(req, res, action.fields.topic);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        console.log("I'll take that thankyou pretty much");
-        res.end("Bye~\n");
-    });
-    // res.writeHead(200, {'content-type': 'text/plain'});
-    // res.end("Bye~\n");
-    // return;
-=======
     // let body = [];
     req.on('end', function () {
         var message = socket.read();
         console.log(message);
-        res.writeHead(200, { 'content-type': 'text/plain' });
-        res.end("Bye~\n");
     });
+    res.writeHead(200, { 'content-type': 'text/plain' });
+    res.end("Bye~\n");
     return;
->>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
 })
     // .on('connection', (cltSocket:any)=>{
     //     console.log("Client connected");
@@ -225,19 +150,6 @@ var server = http.createServer(function (req, res) {
     //     cltSocket.on('data', (chunk:string = "")=>{
     //         buffer+=chunk;
     //     })
-<<<<<<< HEAD
-    //     .on('close', (req:IncomingMessage, socket:Stream, head:Buffer)=>{
-    //         let action:(Action | null) = PHCommand;
-    //         // let ss = server;
-    //         // let rsym = Symbol.for('IncomingMessage');
-    //         // // let req = ss[rsym];
-    //         // let req = ss[Object.getOwnPropertySymbols(ss)[0]]
-    //         // let res = ss[Object.getOwnPropertySymbols(ss)[1]]
-    //         // let res = ss[Symbol('ServerResponse')]; 
-    //         try{
-    //             let dec = buffer.toString() || "";
-    //             let pattern = /(\{\s{0,}"action":[\s\S]+})/;
-=======
     //     .on('close', ()=>{
     //         let action:(Action | null) = PHCommand;
     //         let ss = server;
@@ -249,7 +161,6 @@ var server = http.createServer(function (req, res) {
     //         try{
     //             let dec = buffer.toString() || "";
     //             let pattern = /(\{"action":.+\}\})/;
->>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
     //             // let params = dec.split("\n")[5];
     //             let M = dec.match(pattern) || [];
     //             let jsonStr = M.length > 1 ? M[1] : "";
@@ -296,8 +207,6 @@ var server = http.createServer(function (req, res) {
     //         console.log("I'll take that thankyou pretty much");
     //     })
     // })
-<<<<<<< HEAD
-=======
     // //This is for multiple request per connection
     // .on('request', (req:IncomingMessage, res:ServerResponse)=>{
     //     //Since IncomeMessage doesn't have a body property, we use a global one to append data to it.
@@ -307,7 +216,6 @@ var server = http.createServer(function (req, res) {
     //         console.log();
     //     })
     // })
->>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
     .listen(port, hostname, function () {
     console.log("Listening to port " + port + " on " + hostname);
 });
