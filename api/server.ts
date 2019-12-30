@@ -164,12 +164,75 @@ const getTopics = (req:IncomingMessage, res:ServerResponse, params:Query)=>{
 const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
     console.log();
     let socket = req.socket;
+    console.log("Client connected");
+    let ss = server;
+    let buffer = "";
+    let payload:(Action | null) = PHCommand;
 
     // let body = [];
     req.on('end', ()=>{
         let message = socket.read();
         console.log(message);
+
+        try{
+            let dec = buffer.toString() || "";
+            // let pattern = /(\{"action":.+\}\})/;
+            // // let params = dec.split("\n")[5];
+            // let M = dec.match(pattern) || [];
+            // let jsonStr = M.length > 1 ? M[1] : "";
+            payload = JSON.parse(dec);
+            
+        } catch(err) {
+            console.log(err);
+            throw err;
+        }
+
+        if(payload){
+            //API router
+            let url = req.url;
+            console.log("Request received: " + url);
+            let method = req.method || "add";
+            let reqDummy = new IncomingMessage(new Socket());
+            console.log();
+            // let {topic, email, text} = {topic:"Movie", email:"zxc@asd.com", text:"I like Indinana Jones."};  
+
+            switch(url){
+                case "/messages":
+                    if(method === "GET"){
+                        if(payload.query)
+                        getMessages(req, res, payload.query);
+                    }
+                    else if(method === "POST"){
+                        if(payload.fields)
+                        postMessage(req, res, payload.fields);
+                    }
+                    break;
+                case "/topics":
+                    if(method === "GET"){
+                        if(payload.query)
+                        getTopics(req, res, payload.query);
+                    }
+                    else if(method === "POST"){
+                        if(payload.fields)
+                        postTopic(req, res, payload.fields.topic);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        console.log("I'll take that thankyou pretty much");
     });
+
+    //cloSocket streams request data for queries to DB
+    req.on('data', (chunk:string = "")=>{
+        buffer+=chunk;
+    })
+    .on('close', ()=>{
+
+    })
+    
     res.writeHead(200, {'content-type': 'text/plain'});
     res.end("Bye~\n");
     return;

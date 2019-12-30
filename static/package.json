@@ -4,20 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.7",
-<<<<<<< HEAD
+    "bcryptjs": "^2.4.3",
     "handlebars": "^4.5.3",
-    "http": "0.0.0",
     "jsonwebtoken": "^8.5.1",
     "pdfkit": "^0.11.0"
-=======
-    "http": "0.0.0",
-    "jsonwebtoken": "^8.5.1"
->>>>>>> 6fc5a7d4f35593d56ae0b909e8ac79ef9f72bef8
   }
 }
