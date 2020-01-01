@@ -153,7 +153,7 @@ var server = http.createServer(function (req, res) {
         }
         catch (err) {
             console.log(err);
-            throw err;
+            //throw err;
         }
         if (payload) {
             //API router

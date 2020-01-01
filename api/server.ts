@@ -184,7 +184,7 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
             
         } catch(err) {
             console.log(err);
-            throw err;
+            //throw err;
         }
 
         if(payload){

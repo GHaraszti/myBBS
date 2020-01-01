@@ -33,7 +33,7 @@ function hydrate(hbsFile, params){
     return html;
 }
 
-function loadHomePage(req, res, args){
+function loadHTML(req, res, route, args){
     //DB tasks
     const apiReq = http.request(apiOptions, (socket) => {
         let buffer = '';
@@ -47,7 +47,7 @@ function loadHomePage(req, res, args){
         socket.on('end', () => {
           console.log(buffer);
 
-          sendFile(req, res, "index.html", args);
+          sendFile(req, res, `${route}.html`, args);
         });
       });
       
@@ -61,10 +61,28 @@ function loadHomePage(req, res, args){
     //
 }
 
+function loadHomePage(){
+    //DB tasks
+    //
+    sendFile(req, res, "home.html", args);
+}
+
 function loadLatest(){
     //DB tasks
     //
-    sendFile(req, res, "index.html", args);
+    sendFile(req, res, "latest.html", args);
+}
+
+function loadTopics(){
+    //DB tasks
+    //
+    sendFile(req, res, "topics.html", args);
+}
+
+function loadMessages(){
+    //DB tasks
+    //
+    sendFile(req, res, "messages.html", args);
 }
 
 function loadLogin(){
@@ -143,7 +161,9 @@ server.on('connection', (req, cltSocket, head)=>{
 
 server.on('request', (req, res)=>{
     let url = req.url;
-    let [, path, params] = url.match(/(.+)\??(.+)?/);
+
+    //path is defined when params exist, npPath is defined otherwise
+    let [xxx, path, params, npPath] = url.match(/(?:(\/\w+)\?(.*))|(?:(\/\w+)\??$)/);
     let args = {};
     if(params){
         params.split('&').forEach(pair => {
@@ -151,6 +171,10 @@ server.on('request', (req, res)=>{
             args[key] = value;
         });
     }
+
+    //If url contains no params, path is taken from npPath
+    if(!path) path=npPath;
+
     console.log("Request received: " + url);
 
     // (err, payload)=>{
@@ -164,17 +188,20 @@ server.on('request', (req, res)=>{
 
     let payload = authenticate(req, res)
     .then((payload)=>{
-        if(url == "/"){
-            loadHomePage(req, res, args);
+        if(path == "/"){
+            loadHTML(req, res, "index", args);
         }
-        if(url == "/home"){
-            loadLatest(req, res, args);
+        if(path == "/home"){
+            loadHTML(req, res, "home", args);
         }
-        if(url == "/messages"){
-            loadTopics(req, res, args);
+        if(url == "/latest"){
+            loadHTML(req, res, "latest", args);
         }
-        if(url == "/topics"){
-            loadMessages(req, res, args);
+        if(path == "/messages"){
+            loadHTML(req, res, "messages", args);
+        }
+        if(path == "/topics"){
+            loadHTML(req, res, "topics", args);
         } 
         else {
             //Patterns for getting the file name from url and its extension
