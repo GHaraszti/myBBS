@@ -39,9 +39,9 @@ var postMessage = function (req, res, message) {
         var status = result ? result[0] : null;
         console.log(result);
         if (status === "OK") {
-            // res.writeHead(200, { 'Content-Type' : 'application/json'});
-            // res.write("Message added.");            
-            //res.end();   
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.write("Message added.");
+            res.end();
         }
         else {
             throw new Error("I'm afraid shite has happened.");
@@ -55,24 +55,23 @@ var postMessage = function (req, res, message) {
     });
 };
 var postTopic = function (req, res, topic) {
+    if (topic) {
+        topic = topic.toLowerCase();
+    }
     TopicsDB.set(topic)
         .then(function (result) {
         // let status = result ? result[0] : null;
         var status = result;
         console.log(result);
-        if (status === "OK" || status == true) {
+        if (status) {
             res.statusCode = 200;
-            res.write("Message added.");
-            res.end();
-        }
-        else if (status == false) {
-            res.statusCode = 400;
-            res.write("Topic already exists.");
+            res.write("Topic added.");
             res.end();
         }
         else {
-            res.statusCode = 500;
-            throw new Error("I'm afraid shite has happened.");
+            res.statusCode = 400;
+            res.write("Topic already exists.");
+            res.end();
         }
     })
         .catch(function (err) {
@@ -84,7 +83,8 @@ var postTopic = function (req, res, topic) {
 };
 //GET handlers
 var getMessages = function (req, res, params) {
-    var topic = params.topic, count = params.count, page = params.page;
+    var _a = params.topic, topic = _a === void 0 ? "*" : _a, _b = params.count, count = _b === void 0 ? 10 : _b, _c = params.page, page = _c === void 0 ? 1 : _c;
+    topic = topic.toLowerCase();
     MsgDB.get(topic, count, page)
         .then(function (result) {
         console.log(result);
@@ -98,7 +98,10 @@ var getMessages = function (req, res, params) {
             throw new Error("I'm afraid shite has happened.");
         }
     }, function (reason) {
-        throw new Error(reason);
+        //No results but things are OK from this side
+        //throw new Error(reason);
+        res.statusCode = 200;
+        res.end();
     })
         .catch(function (err) {
         console.log(err);
@@ -138,24 +141,30 @@ var server = http.createServer(function (req, res) {
     console.log("Client connected");
     var ss = server;
     var buffer = "";
-    var payload = PHCommand;
+    var payload;
+    // let payload:(Query | Message | string | null);
     // let body = [];
     req.on('end', function () {
         var message = socket.read();
         console.log(message);
-        try {
-            var dec = buffer.toString() || "";
-            // let pattern = /(\{"action":.+\}\})/;
-            // // let params = dec.split("\n")[5];
-            // let M = dec.match(pattern) || [];
-            // let jsonStr = M.length > 1 ? M[1] : "";
-            payload = JSON.parse(dec);
-        }
-        catch (err) {
-            console.log(err);
-            //throw err;
-        }
-        if (payload) {
+        if (buffer !== "") {
+            //Formating data
+            var dataObj = null;
+            var q = null;
+            var m = null;
+            try {
+                var dec = buffer.toString() || "";
+                // let pattern = /(\{"action":.+\}\})/;
+                // // let params = dec.split("\n")[5];
+                // let M = dec.match(pattern) || [];
+                // let jsonStr = M.length > 1 ? M[1] : "";
+                dataObj = JSON.parse(dec);
+            }
+            catch (err) {
+                console.log(err);
+                //throw err;
+                console.log("Shite has happened.");
+            }
             //API router
             var url = req.url;
             console.log("Request received: " + url);
@@ -163,28 +172,37 @@ var server = http.createServer(function (req, res) {
             var reqDummy = new http_1.IncomingMessage(new net_1.Socket());
             console.log();
             // let {topic, email, text} = {topic:"Movie", email:"zxc@asd.com", text:"I like Indinana Jones."};  
-            switch (url) {
+            if (method == "GET") {
+                q = dataObj;
+            }
+            else {
+                m = dataObj;
+            }
+            switch (dataObj && url) {
                 case "/messages":
                     if (method === "GET") {
-                        if (payload.query)
-                            getMessages(req, res, payload.query);
+                        if (q)
+                            getMessages(req, res, q);
                     }
                     else if (method === "POST") {
-                        if (payload.fields)
-                            postMessage(req, res, payload.fields);
+                        if (m)
+                            postMessage(req, res, m);
                     }
                     break;
                 case "/topics":
                     if (method === "GET") {
-                        if (payload.query)
-                            getTopics(req, res, payload.query);
+                        if (q)
+                            getTopics(req, res, q);
                     }
                     else if (method === "POST") {
-                        if (payload.fields)
-                            postTopic(req, res, payload.fields.topic);
+                        if (m)
+                            postTopic(req, res, m.topic);
                     }
                     break;
                 default:
+                    res.writeHead(400, "Route isn't found.");
+                    res.write("Sorry, the requested page doesn't exist.");
+                    res.end();
                     break;
             }
         }
@@ -196,10 +214,8 @@ var server = http.createServer(function (req, res) {
         buffer += chunk;
     })
         .on('close', function () {
+        console.log("Closing connection.");
     });
-    res.writeHead(200, { 'content-type': 'text/plain' });
-    res.end("Bye~\n");
-    return;
 })
     // .on('connection', (cltSocket:any)=>{
     //     console.log("Client connected");

@@ -22,8 +22,8 @@ interface Query {
 }
 
 interface Action {
-    module: string,
-    type: string,
+    module?: string,
+    type?: string,
     fields?: Message,
     query?: Query
 }
@@ -66,9 +66,9 @@ const postMessage = (req:IncomingMessage, res: ServerResponse, message:Message)=
         let status = result ? result[0] : null;
         console.log(result);
         if(status === "OK"){
-            // res.writeHead(200, { 'Content-Type' : 'application/json'});
-            // res.write("Message added.");            
-            //res.end();   
+            res.writeHead(200, { 'Content-Type' : 'text/plain'});
+            res.write("Message added.");            
+            res.end();   
         } else {
             throw new Error("I'm afraid shite has happened.");
         }
@@ -82,25 +82,25 @@ const postMessage = (req:IncomingMessage, res: ServerResponse, message:Message)=
 }
 
 const postTopic = (req:IncomingMessage, res: ServerResponse, topic:string)=>{
-
+    if(topic){
+        topic = topic.toLowerCase();
+    }
+    
     TopicsDB.set(topic)
-    .then((result:(string | boolean))=>{
+    .then((result:(string | boolean | number))=>{
         // let status = result ? result[0] : null;
         let status = result;
 
         console.log(result);
-        if(status === "OK" || status == true){
+        if(status){
             res.statusCode = 200;
-            res.write("Message added.");            
+            res.write("Topic added.");            
             res.end();   
-        } else if (status == false){
+        }
+        else {
             res.statusCode = 400;
             res.write("Topic already exists.");            
-            res.end();   
-        } 
-        else {
-            res.statusCode = 500;
-            throw new Error("I'm afraid shite has happened.");
+            res.end();  
         }
     })
     .catch((err:Error)=>{
@@ -113,7 +113,8 @@ const postTopic = (req:IncomingMessage, res: ServerResponse, topic:string)=>{
 
 //GET handlers
 const getMessages = (req:IncomingMessage, res:ServerResponse, params:Query)=>{
-    let {topic, count, page} = params;
+    let {topic="*", count=10, page=1} = params;
+    topic = topic.toLowerCase();
     MsgDB.get(topic, count, page)
     .then((result:[])=>{
         console.log(result);
@@ -126,7 +127,10 @@ const getMessages = (req:IncomingMessage, res:ServerResponse, params:Query)=>{
             throw new Error("I'm afraid shite has happened.");
         }
     },(reason:string)=>{
-        throw new Error(reason)
+        //No results but things are OK from this side
+        //throw new Error(reason);
+        res.statusCode = 200;
+        res.end();   
     })
     .catch((err:Error)=>{
         console.log(err);
@@ -167,27 +171,32 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
     console.log("Client connected");
     let ss = server;
     let buffer = "";
-    let payload:(Action | null) = PHCommand;
+    let payload:(Action);
+    // let payload:(Query | Message | string | null);
 
     // let body = [];
     req.on('end', ()=>{
         let message = socket.read();
         console.log(message);
 
-        try{
-            let dec = buffer.toString() || "";
-            // let pattern = /(\{"action":.+\}\})/;
-            // // let params = dec.split("\n")[5];
-            // let M = dec.match(pattern) || [];
-            // let jsonStr = M.length > 1 ? M[1] : "";
-            payload = JSON.parse(dec);
-            
-        } catch(err) {
-            console.log(err);
-            //throw err;
-        }
+        if(buffer !== ""){
+            //Formating data
+            let dataObj:(Query | Message | null) = null;
+            let q:(Query | null) = null;
+            let m:(Message | null) = null;
 
-        if(payload){
+            try{
+                let dec = buffer.toString() || "";
+                // let pattern = /(\{"action":.+\}\})/;
+                // // let params = dec.split("\n")[5];
+                // let M = dec.match(pattern) || [];
+                // let jsonStr = M.length > 1 ? M[1] : "";
+                dataObj = JSON.parse(dec);
+            } catch(err) {
+                console.log(err);
+                //throw err;
+                console.log("Shite has happened.");
+            }
             //API router
             let url = req.url;
             console.log("Request received: " + url);
@@ -195,29 +204,37 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
             let reqDummy = new IncomingMessage(new Socket());
             console.log();
             // let {topic, email, text} = {topic:"Movie", email:"zxc@asd.com", text:"I like Indinana Jones."};  
+            if(method == "GET"){
+                q = dataObj;
+            } else {
+                m = dataObj;
+            }
 
-            switch(url){
+            switch(dataObj && url){
                 case "/messages":
                     if(method === "GET"){
-                        if(payload.query)
-                        getMessages(req, res, payload.query);
+                        if(q)
+                        getMessages(req, res, q);
                     }
                     else if(method === "POST"){
-                        if(payload.fields)
-                        postMessage(req, res, payload.fields);
+                        if(m)
+                        postMessage(req, res, m);
                     }
                     break;
                 case "/topics":
                     if(method === "GET"){
-                        if(payload.query)
-                        getTopics(req, res, payload.query);
+                        if(q)
+                        getTopics(req, res, q);
                     }
                     else if(method === "POST"){
-                        if(payload.fields)
-                        postTopic(req, res, payload.fields.topic);
+                        if(m)
+                        postTopic(req, res, m.topic);
                     }
                     break;
                 default:
+                    res.writeHead(400, "Route isn't found.");
+                    res.write("Sorry, the requested page doesn't exist.");
+                    res.end();
                     break;
             }
         }
@@ -230,12 +247,8 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
         buffer+=chunk;
     })
     .on('close', ()=>{
-
+        console.log("Closing connection.");
     })
-    
-    res.writeHead(200, {'content-type': 'text/plain'});
-    res.end("Bye~\n");
-    return;
 })
 // .on('connection', (cltSocket:any)=>{
 //     console.log("Client connected");

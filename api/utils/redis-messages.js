@@ -45,7 +45,10 @@ const msgScanner = (pattern, cursor, buffer, count, page)=>{
 const topicScanner = (cursor, buffer, count, page)=>{
     let params = [cursor];
     if(count) params.push("count", count);
-    return pSScan("topics:all-topics", cursor).then((result)=>{
+    let n = count ? parseInt(count) : 10;
+    let p = page ? parseInt(page) : 1;
+
+    return pSScan("topics:all-topics", cursor, "count", n*p).then((result)=>{
         cursor = result[0];
         let keys = result[1];
         keys.forEach((element) => {
@@ -55,7 +58,7 @@ const topicScanner = (cursor, buffer, count, page)=>{
         return [cursor, buffer];
     })
     .then((result)=>{
-        return result[0] === "0" ? result[1] : topicScanner(cursor, buffer, count, page);
+        return (result[0] === "0" || buffer.length <= n) ? result[1] : topicScanner(cursor, buffer, n, p);
     });
 }
 

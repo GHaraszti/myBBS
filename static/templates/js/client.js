@@ -13,19 +13,17 @@ window.onload = function(){
     console.log("This is the container:", container);
 
     let homeLoad = ()=>{
-        debugger;
         // Optionally the request above could also be done as
         axios.get(host + "/home")
         .then(function (response) {
             debugger;
             console.log(response);
+            container.innerHTML = response.data;
         })
         .catch(function (error) {
-            debugger;
             console.log(error);
         })
         .finally(function () {
-            debugger;
             loadDivs();
             // always executed
         });  
@@ -39,7 +37,9 @@ window.onload = function(){
             }
         })
         .then(function (response) {
+            debugger;
             console.log(response);
+            latest.innerHTML=response.data;
         })
         .catch(function (error) {
             console.log(error);
@@ -57,7 +57,9 @@ window.onload = function(){
             }
         })
         .then(function (response) {
+            debugger;
             console.log(response);
+            topics.innerHTML=response.data;
         })
         .catch(function (error) {
             console.log(error);
@@ -75,7 +77,9 @@ window.onload = function(){
             }
         })
         .then(function (response) {
+            debugger;
             console.log(response);
+            messages.innerHTML=response.data;
         })
         .catch(function (error) {
             console.log(error);
@@ -99,7 +103,6 @@ window.onload = function(){
     }
 
     let loadDivs = ()=>{
-        debugger;
         latest = this.document.getElementById("latest");
         topics = this.document.getElementById("topics");
         messages = this.document.getElementById("messages");
@@ -122,7 +125,6 @@ window.onload = function(){
     }
 
     container.addEventListener("loadHome",()=>{
-        debugger;
         homeLoad();
     });
 
